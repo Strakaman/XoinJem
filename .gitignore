@@ -1,0 +1,77 @@
+/GC2/
+/PATCH/
+/PATCH-OSX/
+/PATCH-WIN/
+# =============== #
+# Unity generated #
+# =============== #
+/[tT]emp/
+[oO]bj
+/UnityGenerated
+/[lL]ibrary/
+/[cC]ache
+/[bB]uild/
+CardExport/ 
+.vs/
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+*.DotSettings
+*.orig
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db.meta
+Thumbs.db
+makePNGs.txt
+
+CardExport
+Assets/CardEdit_CardDesigns.unity.BACKUP.3064.unity
+Assets/CardEdit_CardDesigns.unity.BASE.3064.unity
+Assets/CardEdit_CardDesigns.unity.LOCAL.3064.unity
+Assets/CardEdit_CardDesigns.unity.REMOTE.3064.unity
+Assets/FR2_Cache.asset
+C2-power.txt
+C2-power.txt.meta
+C2-tech.txt
+C2-tech.txt.meta
+S-Raider.txt
+active-battle.psd
+active-battle.psd.meta
+C-tech3.txt
+C-tech3.txt.meta
+C-Iron.txt
+C-Iron.txt.meta
+S-TechVade_old.txt
+S-TechVade_old.txt.meta
+C-Synaide.txt
+S-TechVade.txt
+LocalCache
+CoalitionDreadnaught_S.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_B.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_E2.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_T.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_v2_B.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_v2_E.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_v2_S.psd
+Assets/Gala_Assets/3D/ships/CoalitionDreadnaught/CoalitionDreadnaught_v2_T.psd
+Assets/DarkTonic/MasterAudio/ExampleScenes.meta
+/PATCH/
