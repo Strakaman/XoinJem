@@ -22,7 +22,7 @@ public class PlayerMovement : NetworkBehaviour
     [SyncVar]
 	bool crouch = false;
 
-    [SyncVar (hook ="OnScoreChanged")]
+    //[SyncVar (hook ="OnScoreChanged")]
     public int score = 0;
 
     [SyncVar]
@@ -49,6 +49,7 @@ public class PlayerMovement : NetworkBehaviour
         pName = "Player " + (num + 1);
         spr.color = playercolors[num];
         myHUD = MultiPlayerHUDManager.instance.RetrieveHUD(num);
+        myHUD.UpdateYourScore(0);
         myHUD.UpdateBGColor(playercolors[num]);
         myHUD.UpdateYourName(pName);
     }
@@ -107,22 +108,12 @@ public class PlayerMovement : NetworkBehaviour
         crouch = val;
     }
 
-    [Command]
-    public void CmdIncreaseScore()
+    //[Command]
+    public void IncreaseScore()
     {
-        score++;
-        Debug.LogWarning("command increase score hit " + score);
-        //if (hasAuthority) //only trigger once, might as well have local player figure it out
-        {
-            if (score >= StaticGameData.instance.scoreNeededToWin)
-            {
-                RpcGameOver(num);
-            }
-            else
-            {
-                Debug.Log(pName + "has this " + score + " points but needs a total of " + StaticGameData.instance.scoreNeededToWin + " to win.");
-            }
-        }
+        //score++;
+        Debug.LogWarning("command increase score hit- old score" + score);
+        RpcSetScore(score + 1);
     }
 
 
@@ -169,8 +160,7 @@ public class PlayerMovement : NetworkBehaviour
         pName = nombre;
     }
 
-    [ClientRpc]
-    public void RpcGameOver(int winnerNum)
+    public void GameOver(int winnerNum)
     {
         //controller.enabled = false;
         if (winnerNum == num)
@@ -179,8 +169,39 @@ public class PlayerMovement : NetworkBehaviour
             StartCoroutine(myHUD.VictoryFlicker());
         }
         Debug.Log("Winner is Player " + (winnerNum +1)+". I am " +pName);
+        //this.enabled = false;
+        if (isServer)
+        { //server version of this client should find the network manager and tell it to deactivate non winners
+            XoinNetworkManager serverNetworkManager = FindObjectOfType(typeof(XoinNetworkManager)) as XoinNetworkManager;
+            serverNetworkManager.DeactivateLosersMovement(winnerNum);
+        }
+    }
+
+    [ClientRpc]
+    public void RpcDeactivateYourself()
+    {
         this.enabled = false;
     }
+
+    [ClientRpc]
+    public void RpcSetScore(int newScore)
+    {
+        score = newScore;
+        Debug.LogWarning("command increase score hit " + score);
+        OnScoreChanged(score);
+        //if (hasAuthority) //only trigger once, might as well have local player figure it out
+        {
+            if (score >= StaticGameData.instance.scoreNeededToWin)
+            {
+                GameOver(num);
+            }
+            else
+            {
+                Debug.Log(pName + "has this " + score + " points but needs a total of " + StaticGameData.instance.scoreNeededToWin + " to win.");
+            }
+        }
+    }
+
     void FixedUpdate ()
 	{
         // Move our character i

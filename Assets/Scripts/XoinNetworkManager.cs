@@ -2,23 +2,21 @@
 using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.Networking.NetworkSystem;
+using System;
 
 public class XoinNetworkManager : NetworkManager {
 
-    public NetworkConnection[] playersList;
+    public PlayerMovement[] playersList;
     bool gameActive = false;
-    public BGMManager myBGMPlayer;
-    public GemSpawner gemSpawner;
-    public int playersNeeded = 2;
+    //public BGMManager myBGMPlayer;
+    //public GemSpawner gemSpawner;
 
     public Coroutine spawnCoroutine;
     // Use this for initialization
-    static Color[] playercolors;
     void Start()
     {
-        Debug.Log("start hit");
-        playersList= new NetworkConnection[matchSize];
-        playercolors = new Color[] { Color.white, Color.gray, Color.green, Color.blue };
+        Debug.Log("start Network Manager");
+        playersList= new PlayerMovement[matchSize];
     }
     private void Update()
     {
@@ -29,11 +27,11 @@ public class XoinNetworkManager : NetworkManager {
             {
            //     summary += "[" + score + "]";
             }
-            foreach (NetworkConnection nc in playersList)
+            foreach (PlayerMovement nc in playersList)
             {
                 if (nc != null)
                 {
-                    summary += "(" + nc.connectionId + ")";
+                    summary += "(" + nc.num + ")";
                 }
             }
             Debug.Log("Network Manager Summary " + summary);
@@ -45,6 +43,8 @@ public class XoinNetworkManager : NetworkManager {
         Debug.Log("hit add player");
         base.OnServerAddPlayer(conn, playerControllerId);
         AddPlayer(conn);
+
+        if (gameActive) { return; }//if the game is already active, no need to retrigger courintine
         if (IsGameReadyToStart())
         {
             gameActive = true;
@@ -58,9 +58,9 @@ public class XoinNetworkManager : NetworkManager {
         {
             if (playersList[i] == null)
             {
-                playersList[i] = newPlayerConn;
                 PlayerMovement playerStuff = newPlayerConn.playerControllers[0].gameObject.GetComponent<PlayerMovement>();
                 playerStuff.num = i;
+                playersList[i] = playerStuff;
                 //playerStuff.RpcSetYourColor(playercolors[i]);
                 //playerStuff.RpcSetYourName("Player " + (i+1));
                 break;
@@ -89,9 +89,10 @@ public class XoinNetworkManager : NetworkManager {
 
     void StartGame()
     {
-        spawnCoroutine = StartCoroutine(gemSpawner.SpawnLoop());
-        int res = Random.Range(0,3);
-        myBGMPlayer.SendRPCToPlayClip(res);
+        spawnCoroutine = StartCoroutine(GemSpawner.instance.SpawnLoop());
+        int res = UnityEngine.Random.Range(0,BGMManager.instance.HowManyClipsYouGot()); //play from random list of playable songs
+        BGMManager.instance.playOnJoinClipIndex = res;
+        BGMManager.instance.SendRPCToPlayClip();
     }
 
     void EndGame()
@@ -99,18 +100,15 @@ public class XoinNetworkManager : NetworkManager {
         gameActive = false;
     }
 
-    public void CoinHit(uint pID)
+    internal void DeactivateLosersMovement(int winnerNum)
     {
-        Debug.Log("looking for pid: " +pID);
-        for (int j=0; j < playersList.Length;j++)
+        gameActive = false;
+        foreach (PlayerMovement playa in playersList)
         {
-            if (playersList[j] != null) Debug.Log("asda " + playersList[j].connectionId + playersList[j].hostId);
-            if (playersList[j] != null && playersList[j].connectionId == pID)
-            {
-                //scores[j]++;
-                break;
+            if (playa!= null && playa.num != winnerNum)
+                {
+                playa.RpcDeactivateYourself();
             }
         }
-        Debug.Log("player gone, should not be hit");
     }
 }

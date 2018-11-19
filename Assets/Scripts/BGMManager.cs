@@ -9,24 +9,47 @@ public class BGMManager : NetworkBehaviour {
     public List<AudioClip> BGMsToPlay;
     public AudioSource myMusicPlayer;
     public AudioClip lobbyBGM;
-    public void OnEnable()
+
+    [SyncVar]
+    public int playOnJoinClipIndex = -1;
+
+    public override void OnStartClient()
     {
-        myMusicPlayer.clip = lobbyBGM;
+        base.OnStartClient();
+        InitialPlay();
+    }
+
+    /// <summary>
+    /// Check if should play lobby music if hosting/match hasn't started or if should play battle music
+    /// </summary>
+    private void InitialPlay()
+    {
+        if (playOnJoinClipIndex == -1)
+        {
+            myMusicPlayer.clip = lobbyBGM;
+        }
+        else
+        {
+            myMusicPlayer.clip = BGMsToPlay[playOnJoinClipIndex];
+        }
         myMusicPlayer.Play();
     }
 
     [ClientRpc]
-    public void RpcPlayAudioClip(int whichOne)
+    public void RpcPlayAudioClip()
     {
         myMusicPlayer.Stop();
-        myMusicPlayer.clip = BGMsToPlay[whichOne];
+        //playOnJoinClipIndex = whichOne;
+        myMusicPlayer.clip = BGMsToPlay[playOnJoinClipIndex];
         myMusicPlayer.Play();
     }
 
-    public void SendRPCToPlayClip(int whichone)
+    //called by server object to initiate RPC from server version of BGM Manager
+    public void SendRPCToPlayClip()
     {
-        RpcPlayAudioClip(whichone);
+        RpcPlayAudioClip();
     }
+
     public void PleaseStopWithTheMusic()
     {
         myMusicPlayer.Stop();
@@ -36,4 +59,26 @@ public class BGMManager : NetworkBehaviour {
     {
         return BGMsToPlay.Count;
     }
+
+    #region instance
+    private static BGMManager s_Instance = null;
+    public static BGMManager instance
+    {
+        get
+        {
+            if (s_Instance == null)
+            {
+                s_Instance = FindObjectOfType(typeof(BGMManager)) as BGMManager;
+            }
+
+            if (s_Instance == null)
+            {
+                Debug.LogWarning("Could not locate a BGMManager object!");
+            }
+
+            return s_Instance;
+        }
+    }
+    #endregion
+
 }
