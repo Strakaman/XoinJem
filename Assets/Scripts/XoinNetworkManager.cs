@@ -6,7 +6,7 @@ using System;
 
 public class XoinNetworkManager : NetworkManager {
 
-    public PlayerMovement[] playersList;
+    public PlayerMovementInput[] playersList;
     bool gameActive = false;
     //public BGMManager myBGMPlayer;
     //public GemSpawner gemSpawner;
@@ -16,7 +16,7 @@ public class XoinNetworkManager : NetworkManager {
     void Start()
     {
         Debug.Log("start Network Manager");
-        playersList= new PlayerMovement[matchSize];
+        playersList= new PlayerMovementInput[matchSize];
     }
     private void Update()
     {
@@ -27,7 +27,7 @@ public class XoinNetworkManager : NetworkManager {
             {
            //     summary += "[" + score + "]";
             }
-            foreach (PlayerMovement nc in playersList)
+            foreach (PlayerMovementInput nc in playersList)
             {
                 if (nc != null)
                 {
@@ -38,11 +38,17 @@ public class XoinNetworkManager : NetworkManager {
         }
     }
 
+    public override void OnClientDisconnect(NetworkConnection conn)
+    {
+        base.OnClientDisconnect(conn);
+        MultiPlayerHUDManager.instance.RpcActivateBasedOnActivePlayers(playersList);
+    }
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         Debug.Log("hit add player");
         base.OnServerAddPlayer(conn, playerControllerId);
         AddPlayer(conn);
+        MultiPlayerHUDManager.instance.RpcActivateBasedOnActivePlayers(playersList);
 
         if (gameActive) { return; }//if the game is already active, no need to retrigger courintine
         if (IsGameReadyToStart())
@@ -58,7 +64,7 @@ public class XoinNetworkManager : NetworkManager {
         {
             if (playersList[i] == null)
             {
-                PlayerMovement playerStuff = newPlayerConn.playerControllers[0].gameObject.GetComponent<PlayerMovement>();
+                PlayerMovementInput playerStuff = newPlayerConn.playerControllers[0].gameObject.GetComponent<PlayerMovementInput>();
                 playerStuff.num = i;
                 playersList[i] = playerStuff;
                 //playerStuff.RpcSetYourColor(playercolors[i]);
@@ -103,7 +109,7 @@ public class XoinNetworkManager : NetworkManager {
     internal void DeactivateLosersMovement(int winnerNum)
     {
         gameActive = false;
-        foreach (PlayerMovement playa in playersList)
+        foreach (PlayerMovementInput playa in playersList)
         {
             if (playa!= null && playa.num != winnerNum)
                 {

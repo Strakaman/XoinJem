@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class MultiPlayerHUDManager : MonoBehaviour {
+public class MultiPlayerHUDManager : NetworkBehaviour {
 
     public PlayerHUD[] allPlayerHUDS;
 
@@ -11,6 +12,21 @@ public class MultiPlayerHUDManager : MonoBehaviour {
         return allPlayerHUDS[playerNum];
     }
 
+    [ClientRpc]
+    public void RpcActivateBasedOnActivePlayers(PlayerMovementInput[] playerList)
+    {
+        for (int index =0;index < playerList.Length; index++)
+        {
+            if (playerList[index] == null)
+            {
+                allPlayerHUDS[index].gameObject.SetActive(false);
+            }
+            else
+            {
+                allPlayerHUDS[index].gameObject.SetActive(true);
+            }
+        }
+    }
     #region instance
     private static MultiPlayerHUDManager s_Instance = null;
     public static MultiPlayerHUDManager instance

@@ -17,7 +17,7 @@ public class Gem : NetworkBehaviour
     {
         if (hit) { return; }
 
-        PlayerMovement pm = collision.GetComponent<PlayerMovement>();
+        PlayerMovementInput pm = collision.GetComponent<PlayerMovementInput>();
         if (pm != null)
         {
             hit = true;
