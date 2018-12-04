@@ -17,16 +17,16 @@ public class Gem : NetworkBehaviour
     {
         if (hit) { return; }
 
-        PlayerMovementInput pm = collision.GetComponent<PlayerMovementInput>();
+        PlayerMasterHandler pm = collision.GetComponent<PlayerMasterHandler>();
         if (pm != null)
         {
             hit = true;
             coll.enabled = false;
             spr.enabled = false;
+            coinSound.Play();
             if (isServer) //since GemSpawner is server only, host should be the only thing looking to report collisions
             {
-                Debug.LogWarning("Player that hit it got a NetID of " + pm.netId);
-                coinSound.Play();
+                Debug.Log("Player that hit it got a NetID of " + pm.netId);
                 pm.IncreaseScore();
                 //myManager.CoinHit(pm.netId.Value);
                 //playsound

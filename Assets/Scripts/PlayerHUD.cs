@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 public class PlayerHUD : MonoBehaviour {
 
-    [SerializeField]
-    int whichPlayerYouFor = 0;
+    //[SerializeField]
+    //int whichPlayerYouFor = 0;
 
     public Text nameText;
     public Text scoreText;
     public Image background;
+
+    bool gameOver = false;
 
     public void UpdateBGColor(Color c)
     {
@@ -28,7 +30,8 @@ public class PlayerHUD : MonoBehaviour {
     public IEnumerator VictoryFlicker()
     {
         Color prevColor = background.color;
-        while (true)
+        gameOver = true;
+        while (gameOver)
         {
             yield return new WaitForSeconds(.75f);
             background.color = Color.white;
@@ -37,5 +40,10 @@ public class PlayerHUD : MonoBehaviour {
 
         }
 
+    }
+
+    public void StopVictoryFlicker()
+    {
+        gameOver = false;
     }
 }

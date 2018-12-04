@@ -12,12 +12,13 @@ public class MultiPlayerHUDManager : NetworkBehaviour {
         return allPlayerHUDS[playerNum];
     }
 
+
     [ClientRpc]
-    public void RpcActivateBasedOnActivePlayers(PlayerMovementInput[] playerList)
+    public void RpcActivateBasedOnActivePlayers(bool[] playerList)
     {
         for (int index =0;index < playerList.Length; index++)
         {
-            if (playerList[index] == null)
+            if (playerList[index] == false)
             {
                 allPlayerHUDS[index].gameObject.SetActive(false);
             }

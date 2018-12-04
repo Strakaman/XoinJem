@@ -6,8 +6,9 @@ using System;
 
 public class XoinNetworkManager : NetworkManager {
 
-    public PlayerMovementInput[] playersList;
+    public PlayerMasterHandler[] playersList;
     bool gameActive = false;
+    bool showReplayButton = false;
     //public BGMManager myBGMPlayer;
     //public GemSpawner gemSpawner;
 
@@ -16,8 +17,18 @@ public class XoinNetworkManager : NetworkManager {
     void Start()
     {
         Debug.Log("start Network Manager");
-        playersList= new PlayerMovementInput[matchSize];
+        playersList= new PlayerMasterHandler[matchSize];
     }
+
+    private void OnGUI()
+    {
+        if (showReplayButton)
+            if (GUI.Button(new Rect(Screen.width - 150, 25, 100, 20), "Play Again?"))
+            {
+                PlayAgain();
+            }
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F3))
@@ -27,7 +38,7 @@ public class XoinNetworkManager : NetworkManager {
             {
            //     summary += "[" + score + "]";
             }
-            foreach (PlayerMovementInput nc in playersList)
+            foreach (PlayerMasterHandler nc in playersList)
             {
                 if (nc != null)
                 {
@@ -38,24 +49,27 @@ public class XoinNetworkManager : NetworkManager {
         }
     }
 
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        StartCoroutine(WaitForGameToStart());
+    }
     public override void OnClientDisconnect(NetworkConnection conn)
     {
         base.OnClientDisconnect(conn);
-        MultiPlayerHUDManager.instance.RpcActivateBasedOnActivePlayers(playersList);
+        HandlePlayerCountChange();
     }
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         Debug.Log("hit add player");
         base.OnServerAddPlayer(conn, playerControllerId);
         AddPlayer(conn);
-        MultiPlayerHUDManager.instance.RpcActivateBasedOnActivePlayers(playersList);
-
-        if (gameActive) { return; }//if the game is already active, no need to retrigger courintine
+        HandlePlayerCountChange();
+        if (gameActive) { return; }//if the game is already active, no need to retrigger check
         if (IsGameReadyToStart())
         {
             gameActive = true;
         }
-        StartCoroutine(WaitForGameToStart());
     }
 
     public void AddPlayer(NetworkConnection newPlayerConn)
@@ -64,11 +78,9 @@ public class XoinNetworkManager : NetworkManager {
         {
             if (playersList[i] == null)
             {
-                PlayerMovementInput playerStuff = newPlayerConn.playerControllers[0].gameObject.GetComponent<PlayerMovementInput>();
-                playerStuff.num = i;
-                playersList[i] = playerStuff;
-                //playerStuff.RpcSetYourColor(playercolors[i]);
-                //playerStuff.RpcSetYourName("Player " + (i+1));
+                PlayerMasterHandler playerData = newPlayerConn.playerControllers[0].gameObject.GetComponent<PlayerMasterHandler>();
+                playerData.num = i;
+                playersList[i] = playerData;
                 break;
             }
         }
@@ -98,7 +110,7 @@ public class XoinNetworkManager : NetworkManager {
         spawnCoroutine = StartCoroutine(GemSpawner.instance.SpawnLoop());
         int res = UnityEngine.Random.Range(0,BGMManager.instance.HowManyClipsYouGot()); //play from random list of playable songs
         BGMManager.instance.playOnJoinClipIndex = res;
-        BGMManager.instance.SendRPCToPlayClip();
+        BGMManager.instance.SendRPCToPlayClip(res);
     }
 
     void EndGame()
@@ -106,15 +118,51 @@ public class XoinNetworkManager : NetworkManager {
         gameActive = false;
     }
 
+    void HandlePlayerCountChange()
+    {
+        bool[] playerSlots = new bool[matchSize]; //true means there is a player at that slot
+        for (int i=0; i < playersList.Length;i++)
+        {
+            if (playersList[i] != null)
+            {
+                playerSlots[i] = true;
+            }
+        }
+        MultiPlayerHUDManager.instance.RpcActivateBasedOnActivePlayers(playerSlots);
+    }
     internal void DeactivateLosersMovement(int winnerNum)
     {
+        if (!gameActive) { return; } //we did this already
         gameActive = false;
-        foreach (PlayerMovementInput playa in playersList)
+        BGMManager.instance.RpcPlayVictoryMusic();
+        showReplayButton = true;
+        foreach (PlayerMasterHandler playa in playersList)
         {
             if (playa!= null && playa.num != winnerNum)
                 {
-                playa.RpcDeactivateYourself();
+                playa.RpcDeactivateYourMovement();
             }
         }
+    }
+
+    void PlayAgain()
+    {
+        /// <summary>
+        /// TODO: ADD RESET
+        /// RESTART GEM LOOP
+        showReplayButton = false;
+        foreach(PlayerMasterHandler pmh in playersList)
+        {
+            if (pmh != null)
+            {
+                pmh.RpcResetForRematch();
+            }
+        }
+        if (IsGameReadyToStart())
+        {
+            gameActive = true;
+        }
+        StartCoroutine(WaitForGameToStart());
+        Debug.Log("HIT");
     }
 }

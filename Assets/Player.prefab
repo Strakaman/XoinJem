@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: 50627933044350150}
   - component: {fileID: 61771856539879420}
   - component: {fileID: 58700564135513714}
+  - component: {fileID: 114408420485898422}
   - component: {fileID: 114956274215275522}
   - component: {fileID: 114537818204196040}
   - component: {fileID: 114356863818581188}
@@ -325,6 +326,23 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: CharacterController2D+BoolEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114408420485898422
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1839080507699290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674d3371ca581b44a84f61f88ddd5eee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spr: {fileID: 212183274946820434}
+  inputMovement: {fileID: 114956274215275522}
+  winnerIcon: {fileID: 1270764108318592}
+  score: 0
+  num: 0
+  pName: 
 --- !u!114 &114537818204196040
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -368,14 +386,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5273cd41ac3c5246965ef9469d10dd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spr: {fileID: 212183274946820434}
   controller: {fileID: 114372528468237556}
   animator: {fileID: 95064505957970024}
   runSpeed: 40
-  winnerIcon: {fileID: 1270764108318592}
-  score: 0
-  num: 0
-  pName: 
 --- !u!212 &212183274946820434
 SpriteRenderer:
   m_ObjectHideFlags: 1

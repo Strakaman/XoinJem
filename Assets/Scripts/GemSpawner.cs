@@ -21,9 +21,16 @@ public class GemSpawner : MonoBehaviour {
     public IEnumerator SpawnLoop()
     {
         int count = 0;
-       
+        //check for gwms that might be active from previous match
+        Gem[] activeGems = FindObjectsOfType<Gem>();
+        Debug.LogWarning(activeGems.Length);
+        foreach (Gem aGem in activeGems)
+        {
+            NetworkServer.Destroy(aGem.gameObject);
+            //Destroy(aGem);
+        }
         yield return new WaitForSeconds(.5f);
-        Debug.LogWarning("LOOK AT ME IM HIT");
+        Debug.Log("Starting GEM Spawn Loop");
         while (count<StaticGameData.instance.numberOfGemsToSpawn) {
 
             yield return new WaitForSeconds(3f);
